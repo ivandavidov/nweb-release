@@ -1,0 +1,6 @@
+set -e
+
+cp -r * ${BOSH_INSTALL_TARGET}
+cd ${BOSH_INSTALL_TARGET}
+gcc nweb.c -o nweb
+

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+RUN_DIR=/var/vcap/sys/run/nweb
+LOG_DIR=/var/vcap/sys/log/nweb
+
+PIDFILE=$RUN_DIR/nweb.pid
+RUNAS=vcap
+
+function pid_exists() {
+  ps -p $1 &> /dev/null
+}
+
+case $1 in
+
+  start)
+    mkdir -p $RUN_DIR $LOG_DIR
+    chown -R $RUNAS:$RUNAS $RUN_DIR $LOG_DIR
+
+    if [ ! -e $LOG_DIR/nweb.log ]
+    then
+      touch /var/vcap/packages/nweb/www/nweb.log
+      ln -s /var/vcap/packages/nweb/www/nweb.log $LOG_DIR/nweb.log
+      chown $RUNAS:$RUNAS /var/vcap/packages/nweb/www/nweb.log
+    fi
+
+    sudo -u $RUNAS \
+      /var/vcap/packages/nweb/nweb \
+      <%= p("port") %> \
+      /var/vcap/packages/nweb/www \
+      >>$LOG_DIR/nweb.stdout.log \
+      2>>$LOG_DIR/nweb.stderr.log &
+
+    sleep 5
+
+    PID=`ps -ef | grep -i ^vcap.*nweb | awk '{print $2}'`
+    if [ "$PID" = "" ]
+    then
+      exit 1
+    fi
+
+    echo $PID > $PIDFILE
+    ;;
+
+  stop)
+    PID=$(head -1 $PIDFILE)
+    if [ ! -z $PID ] && pid_exists $PID; then
+      kill $PID
+    fi
+    while [ -e /proc/$PID ]; do sleep 0.1; done
+    rm -f $PIDFILE
+    ;;
+
+  *)
+  echo "Usage: ctl {start|stop}" ;;
+esac
+
+exit 0

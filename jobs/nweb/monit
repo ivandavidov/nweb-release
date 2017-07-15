@@ -1,0 +1,6 @@
+check process nweb
+  with pidfile /var/vcap/sys/run/nweb/nweb.pid
+  start program "/var/vcap/jobs/nweb/bin/ctl start"
+  stop program "/var/vcap/jobs/nweb/bin/ctl stop"
+group vcap
+

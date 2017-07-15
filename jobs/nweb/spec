@@ -1,0 +1,14 @@
+---
+name: nweb
+
+templates:
+  ctl: bin/ctl
+
+packages:
+- nweb
+
+properties:
+  port:
+    description: "Port on which nWeb server is listening."
+    default: 8080
+
