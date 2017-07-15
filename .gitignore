@@ -1,3 +1,4 @@
 .dev_builds/**
 dev_releases
-stemcell.tgz
+stemcell-ubuntu-trusty.tgz
+
